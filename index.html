@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#09070f"><title>Mi Estudio IA</title>
+<style>
+:root{color-scheme:dark;--bg:#09070f;--panel:#15111f;--panel2:#211831;--purple:#a78bfa;--purple2:#7c3aed;--muted:#b9adc9;--line:#38294c}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 80% 0%,#291746 0,transparent 42%),var(--bg);color:#fff;font:16px system-ui,-apple-system,Segoe UI,sans-serif;min-height:100vh}
+main{width:min(100% - 28px,680px);margin:0 auto;padding:26px 0 50px}.brand{display:flex;align-items:center;gap:12px;margin:8px 0 26px}.logo{width:46px;height:46px;border-radius:15px;background:linear-gradient(135deg,#c4b5fd,#6d28d9);display:grid;place-items:center;font-size:24px;box-shadow:0 8px 30px #7c3aed55}.brand h1{font-size:20px;margin:0}.brand p{margin:3px 0 0;color:var(--muted);font-size:12px}
+.card{background:#15111feF;border:1px solid var(--line);border-radius:22px;padding:20px;margin:14px 0;box-shadow:0 14px 45px #0005}.hidden{display:none!important}h2{font-size:22px;margin:0 0 8px}p.sub{color:var(--muted);margin:0 0 18px;font-size:14px;line-height:1.5}
+label{display:block;font-size:13px;color:#ded4eb;margin:14px 0 7px}input,textarea,select{width:100%;border:1px solid var(--line);background:#0e0b15;color:white;border-radius:12px;padding:13px;font:inherit;outline:none}input:focus,textarea:focus,select:focus{border-color:var(--purple)}textarea{min-height:105px;resize:vertical}
+button{border:0;border-radius:13px;background:linear-gradient(110deg,#8b5cf6,#6d28d9);color:white;padding:14px 17px;font-weight:700;font-size:15px;width:100%;margin-top:16px;cursor:pointer}button.secondary{background:#2b203b;border:1px solid var(--line)}button:disabled{opacity:.55}
+.drop{border:1.5px dashed #7655a5;border-radius:16px;padding:22px;text-align:center;background:#100c18}.drop strong{display:block;margin:8px 0 4px}.drop small{color:var(--muted)}.preview{width:100%;max-height:310px;object-fit:contain;border-radius:12px;margin-top:12px;background:#09070f}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.notice{font-size:12px;color:var(--muted);line-height:1.5;margin-top:14px}.status{padding:12px;border-radius:12px;background:#211831;color:#e9ddff;font-size:13px;margin-top:14px;line-height:1.5}.top{display:flex;justify-content:space-between;align-items:center;gap:12px}.top button{width:auto;margin:0;padding:10px 13px;font-size:12px}.pill{font-size:11px;color:#d9c9ff;background:#382653;border:1px solid #60418b;padding:5px 9px;border-radius:30px}
+@media(min-width:560px){main{padding-top:42px}.card{padding:26px}}
+</style></head>
+<body><main>
+<header class="brand"><div class="logo">✦</div><div><h1>Mi Estudio IA</h1><p>Tu espacio privado de creación</p></div></header>
+<section id="login" class="card">
+<h2>Bienvenido</h2><p class="sub">Inicia sesión para entrar a tu estudio privado.</p>
+<form id="loginForm"><label for="username">Usuario</label><input id="username" autocomplete="username" value="Juaquin" required><label for="password">Contraseña</label><input id="password" type="password" autocomplete="current-password" required><button id="loginBtn">Entrar al estudio</button></form>
+<div id="loginMsg" class="status hidden"></div>
+<p class="notice">El acceso requiere una cuenta configurada por el administrador del servidor.</p>
+</section>
+<section id="studio" class="hidden">
+<div class="top"><div><span class="pill">ESPACIO PRIVADO</span><h2 style="margin-top:12px">Crear video</h2></div><button class="secondary" id="logout">Cerrar sesión</button></div>
+<div class="card">
+<p class="sub">Carga una imagen y describe el movimiento que quieres animar.</p>
+<label>Imagen de origen</label><div class="drop"><div style="font-size:30px">▧</div><strong>Selecciona una imagen</strong><small>JPG, PNG o WEBP · máximo 12 MB</small><input id="image" type="file" accept="image/jpeg,image/png,image/webp" style="margin-top:14px"></div>
+<img id="preview" class="preview hidden" alt="Vista previa de la imagen">
+<label for="prompt">Descripción del video</label><textarea id="prompt" placeholder="Ejemplo: la persona sonríe suavemente y gira la cabeza hacia la cámara; movimiento natural y luz cinematográfica."></textarea>
+<div class="grid"><div><label for="duration">Duración</label><select id="duration"><option value="5">5 segundos</option><option value="8">8 segundos</option><option value="10">10 segundos</option></select></div><div><label for="quality">Calidad</label><select id="quality"><option value="720p">HD 720p</option><option value="1080p">Full HD 1080p</option></select></div></div>
+<button id="generate">Generar video</button><div id="status" class="status hidden" role="status"></div>
+<p class="notice">La generación real necesita conectar un servicio de imagen a video y configurar su API en el servidor. Usa imágenes propias o con permiso; no se admite contenido sexual no consentido ni sexualización de menores.</p>
+</div>
+</section>
+</main>
+<script>
+const $=id=>document.getElementById(id);let fileId=null;
+function message(id,text){$(id).textContent=text;$(id).classList.remove('hidden')}
+function showStudio(on){$('login').classList.toggle('hidden',on);$('studio').classList.toggle('hidden',!on)}
+async function check(){try{const r=await fetch('/api/me');const d=await r.json();showStudio(d.authenticated)}catch(e){message('loginMsg','No se pudo conectar con el servidor.')}}
+$('loginForm').addEventListener('submit',async e=>{e.preventDefault();$('loginBtn').disabled=true;try{const r=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:$('username').value,password:$('password').value})});const d=await r.json();if(!r.ok)throw Error(d.error);$('password').value='';showStudio(true)}catch(err){message('loginMsg',err.message)}finally{$('loginBtn').disabled=false}});
+$('logout').onclick=async()=>{await fetch('/api/logout',{method:'POST'});showStudio(false)};
+$('image').addEventListener('change',async()=>{const f=$('image').files[0];fileId=null;if(!f)return;$('preview').src=URL.createObjectURL(f);$('preview').classList.remove('hidden');message('status','Cargando imagen de forma privada…');try{const fd=new FormData();fd.append('image',f);const r=await fetch('/api/upload',{method:'POST',body:fd});const d=await r.json();if(!r.ok)throw Error(d.error);fileId=d.fileId;message('status',d.message)}catch(e){message('status',e.message)}});
+$('generate').onclick=async()=>{if(!fileId){message('status','Primero selecciona una imagen.');return}if(!$('prompt').value.trim()){message('status','Escribe una descripción del video.');return}$('generate').disabled=true;message('status','Enviando solicitud…');try{const r=await fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({fileId,prompt:$('prompt').value,duration:$('duration').value,quality:$('quality').value})});const d=await r.json();message('status',d.error||'Solicitud enviada.')}catch(e){message('status','No se pudo conectar con el servidor.')}finally{$('generate').disabled=false}};
+check();
+</script></body></html>
