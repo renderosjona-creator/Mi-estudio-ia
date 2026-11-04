@@ -23,7 +23,7 @@ La interfaz y el backend de acceso/carga están implementados. La generación de
 
 ## Privacidad y seguridad
 - Usa HTTPS.
-- Mantén `private_uploads/` fuera del directorio público y limita el acceso al servidor.
+- Mantén `public_uploads/` fuera del directorio público y limita el acceso al servidor.
 - Configura almacenamiento persistente y copias de seguridad privadas.
 - Añade una política de borrado automático de imágenes si no quieres conservarlas.
 - Utiliza solo imágenes propias o con consentimiento de la persona representada. No uses el sistema para crear contenido íntimo no consentido ni contenido sexual de menores.
